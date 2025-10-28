@@ -73,11 +73,11 @@ components:
       scheme: bearer
 
   schemas:
-    Source:
+    source:
       type: string
       enum: [market, custody, "sts-bank"]
 
-    Topic:
+    topic:
       type: string
       enum:
         - deposit_opened
