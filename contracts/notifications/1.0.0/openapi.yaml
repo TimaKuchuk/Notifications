@@ -167,11 +167,11 @@ components:
         topic: { $ref: '#/components/schemas/Topic' }
         message:
           type: string
-          example: "Ошибка при верификации\nКлиент: {client_id}\nID клиента в Кабутек: {kabutek_client_id}\nВремя: {occurred_at}\nСообщение: {error_message}"
+          example: "Ошибка при верификации\nКлиент: {client_id}\nКод клиента в ВАК: {client_code}\nВремя: {occurred_at}\nСообщение: {error_message}"
 
     CardRequestEvent:
       type: object
-      description: "Событие при получении статуса CARD_CREATING"
+      description: "Событие при получении урла от Альфы"
       additionalProperties: false
       required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
       properties:
@@ -187,7 +187,7 @@ components:
 
     CardOpenedEvent:
       type: object
-      description: "Событие при получении статуса CARD_RBS_BIND"
+      description: "Событие при привязке карты и клиента (получение любого из статусов: CARD_CREATED ,CARD_ACTIVATED, CARD_PIN_CREATED)"
       additionalProperties: false
       required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
       properties:
