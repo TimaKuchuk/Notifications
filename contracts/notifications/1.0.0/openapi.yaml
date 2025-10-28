@@ -244,7 +244,7 @@ components:
         topic: { $ref: '#/components/schemas/Topic' }
         message:
           type: string
-          example: "Верификация клиента завершена\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}"
+          example: "Верификация клиента в ПЦ завершена\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}"
 
     PGVerificationErrorEvent:
       type: object
@@ -259,4 +259,4 @@ components:
         topic: { $ref: '#/components/schemas/Topic' }
         message:
           type: string
-          example: "Ошибка в процессе верификации\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}\nКод ошибки: {error_code}\nСообщение: {error_message}"
+          example: "Ошибка в процессе верификации в ПЦ\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}\nКод ошибки: {error_code}\nСообщение: {error_message}"
