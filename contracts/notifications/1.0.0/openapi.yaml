@@ -73,11 +73,11 @@ components:
       scheme: bearer
 
   schemas:
-    source:
+    Source:
       type: string
       enum: [market, custody, "sts-bank"]
 
-    topic:
+    Topic:
       type: string
       enum:
         - deposit_opened
@@ -169,6 +169,7 @@ components:
 
     CardRequestEvent:
       type: object
+      description: "Событие при получении статуса CARD_CREATING"
       additionalProperties: false
       required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
       properties:
@@ -184,6 +185,7 @@ components:
 
     CardOpenedEvent:
       type: object
+      description: "Событие при получении статуса CARD_RBS_BIND"
       additionalProperties: false
       required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
       properties:
