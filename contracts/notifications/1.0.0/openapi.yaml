@@ -75,10 +75,12 @@ components:
   schemas:
     Source:
       type: string
+      description: "Система-источник события"
       enum: [market, custody, "sts-bank"]
 
     Topic:
       type: string
+      description: "Тип события"
       enum:
         - deposit_opened
         - deposit_close
