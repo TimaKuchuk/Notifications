@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: Notifications
+  version: 1.0.0
+security:
+  - BearerAuth: []
+
+paths:
+  /events:
+    post:
+      summary: Отправить событие информирования
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/DepositOpenedEvent'
+                - $ref: '#/components/schemas/DepositCloseEvent'
+                - $ref: '#/components/schemas/DepositEarlyCloseEvent'
+                - $ref: '#/components/schemas/DepositTopupEvent'
+                - $ref: '#/components/schemas/VerificationErrorEvent'
+                - $ref: '#/components/schemas/CardRequestEvent'
+                - $ref: '#/components/schemas/CardOpenedEvent'
+                - $ref: '#/components/schemas/CardErrorEvent'
+                - $ref: '#/components/schemas/PGTopupErrorEvent'
+                - $ref: '#/components/schemas/PGVerificationEvent'
+                - $ref: '#/components/schemas/PGVerificationErrorEvent'
+              discriminator:
+                propertyName: topic
+                mapping:
+                  deposit_opened: '#/components/schemas/DepositOpenedEvent'
+                  deposit_close: '#/components/schemas/DepositCloseEvent'
+                  deposit_early_close: '#/components/schemas/DepositEarlyCloseEvent'
+                  deposit_topup: '#/components/schemas/DepositTopupEvent'
+                  verification_error: '#/components/schemas/VerificationErrorEvent'
+                  card_request: '#/components/schemas/CardRequestEvent'
+                  card_opened: '#/components/schemas/CardOpenedEvent'
+                  card_error: '#/components/schemas/CardErrorEvent'
+                  pg_topup_error: '#/components/schemas/PgTopupErrorEvent'
+                  pg_verification: '#/components/schemas/PgVerificationEvent'
+                  pg_verification_error: '#/components/schemas/PgVerificationErrorEvent'
+      responses:
+        '202':
+            description: Событие принято
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [status, event_id]
+                  properties:
+                    status: { type: string, enum: [accepted] }
+                    event_id: { type: string, format: uuid }
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, message]
+                properties:
+                  code: { type: string, example: VALIDATION_ERROR }
+                  message: { type: string, example: 'field "asset" is required' }
+        '401': { description: Неавторизован }
+        '415': { description: Неподдерживаемый формат (application/json expected) }
+        '429': { description: Лимит запросов превышен }
+        '500': { description: Внутренняя ошибка }
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Source:
+      type: string
+      enum: [market, custody, "sts-bank"]
+
+    Topic:
+      type: string
+      enum:
+        - deposit_opened
+        - deposit_close
+        - deposit_early_close
+        - deposit_topup
+        - verification_error
+        - card_request
+        - card_opened
+        - card_error
+        - pg_topup_error
+        - pg_verification
+        - pg_verification_error
+
+    DepositOpenedEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, asset, blockchain, balance]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Открыт депозит\nКлиент: {client_id}\nВремя: {occurred_at}\nВалюта: {asset}\nСеть: {blockchain}\nСумма: {balance}"
+
+    DepositCloseEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, asset, blockchain, balance]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Депозит закрыт\nКлиент: {client_id}\nВремя: {occurred_at}\nВалюта: {asset}\nСеть: {blockchain}\nВозвращено: {balance}"
+
+    DepositEarlyCloseEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, asset, blockchain, balance]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Депозит закрыт досрочно\nКлиент: {client_id}\nВремя: {occurred_at}\nВалюта: {asset}\nСеть: {blockchain}\nВозвращено: {balance}"
+
+    DepositTopupEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, asset, blockchain, balance]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Пополнение депозита\nКлиент: {client_id}\nВремя: {occurred_at}\nВалюта: {asset}\nСеть: {blockchain}\nНовый баланс: {balance}"
+
+    VerificationErrorEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, kabutek_client_id, error_code, error_message]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Ошибка при верификации\nКлиент: {client_id}\nID клиента в Кабутек: {kabutek_client_id}\nВремя: {occurred_at}\nСообщение: {error_message}"
+
+    CardRequestEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Отправлен запрос на выпуск карты Альфа-Банк\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}"
+
+    CardOpenedEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Карта АБ успешно выпущена\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}"
+
+    CardErrorEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status, error_code, error_message]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Ошибка при выпуске карты АБ\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}\nКод: {error_code}\nСообщение: {error_message}"
+          
+    PGTopupErrorEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, broker, amount, status]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Ошибка при пополнении брокерского счёта\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}\nБрокер: {broker}\nСумма: {amount}\nКод: {error_code}\nСообщение: {error_message}"
+
+    PGVerificationEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Верификация клиента завершена\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}"
+
+    PGVerificationErrorEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, application_id, status, error_code, error_message]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Ошибка в процессе верификации\nКлиент: {client_id}\nВремя: {occurred_at}\nЗаявка: {application_id}\nКод ошибки: {error_code}\nСообщение: {error_message}"
