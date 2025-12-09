@@ -87,6 +87,7 @@ components:
         - deposit_early_close
         - deposit_topup
         - verification_error
+        - verification_Sdi_error
         - card_request
         - card_opened
         - card_error
@@ -168,6 +169,21 @@ components:
         message:
           type: string
           example: "Ошибка при верификации\nКлиент: {client_id}\nКод клиента в ВАК: {client_code}\nВремя: {occurred_at}\nСообщение: {error_message}"
+
+    VerificationSdiErrorEvent:
+      type: object
+      additionalProperties: false
+      required: [event_id, occurred_at, source, client_id, client_code, topic, message, kabutek_client_id, error_code, error_message]
+      properties:
+        event_id: { type: string, format: uuid }
+        occurred_at: { type: string, example: "2025-10-16T12:34:56Z" }
+        source: { $ref: '#/components/schemas/Source' }
+        client_id: { type: string, format: uuid }
+        client_code: { type: string, maxLength: 64 }
+        topic: { $ref: '#/components/schemas/Topic' }
+        message:
+          type: string
+          example: "Ошибка при верификации клиента из СУИ\nКлиент: {client_id}\nКод клиента в ВАК: {client_code}\nВремя: {occurred_at}\nСообщение: {error_message}"
 
     CardRequestEvent:
       type: object
