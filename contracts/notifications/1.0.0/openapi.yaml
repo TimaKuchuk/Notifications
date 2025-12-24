@@ -183,7 +183,7 @@ components:
         topic: { $ref: '#/components/schemas/Topic' }
         message:
           type: string
-          example: "Ошибка при верификации клиента из СУИ\nКлиент: {client_id}\nБрокер: {Название брокера субаккаунта}\nКод клиента в ВАК: {client_code}\nВремя: {occurred_at}\nСообщение: {error_message}"
+          example: "Ошибка при верификации клиента из СУИ\nКлиент: {client_id}\nКод брокера: {broker}\nКод клиента в ВАК: {client_code}\nВремя: {occurred_at}\nСообщение: {error_message}"
 
     CardRequestEvent:
       type: object
